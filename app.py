@@ -1,7 +1,3 @@
-from cmath import inf
-from multiprocessing.dummy import Value
-import py_compile
-from pydoc import classname
 import dash
 from dash import dcc
 from dash import html
@@ -12,8 +8,6 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
-from pyparsing import line
-from matplotlib.pyplot import figure
 
 app = dash.Dash(__name__)
 
@@ -36,19 +30,16 @@ app.layout = html.Div([
         html.Div([
         html.Button(['Stock price'],id='stock-but',className='button'),
         html.Button(['Indicators'],id='indi-but',className='button')]),
-    html.Div([
-        dcc.Input(value='Days of forecast', type='text'),
-        html.Button(['Forecast'],className='button'),]),],className="nav"),
+   # html.Div([
+        #dcc.Input(value='Days of forecast', type='text'),
+        #html.Button(['Forecast'],className='button'),]),],className="nav"),
     html.Div([
         html.Div(children=[],id="head",className="header"),
         html.Div(children=[], id="description", className="decription_ticker"),
         html.Img(src=" ",id="img"),
         dcc.Graph(id="graphs-content"),
         dcc.Graph(id="main-content"),
-html.Div([
-# Forecast plot
-], id="forecast-content")
-],
+
 className="content")],className="container")
 @app.callback([
     Output("head", "children"),
