@@ -1,0 +1,51 @@
+.container {
+    padding-left: 5px;
+    width: 100%;
+    height:100%;
+}
+.nav {
+    align-items: center;
+    display: flexbox;
+    background-color: lightblue;
+    flex-wrap:wrap;
+    flex-direction: column;
+    max-width: 25%;
+    height:40%;
+    justify-content: flex-start;
+}
+.button {
+    transition-duration: 0.4s;
+    display:flexbox;
+    color: darkorange;
+    background-color: yellow;
+    padding: 5px;
+    margin-left: 5px;
+    margin-right: 5px;
+    margin-top: 5px;
+    margin-bottom: 5px;
+  }
+  
+  .button:hover {
+    background-color: #4CAF50; /* Green */
+    color: black;
+  }
+.start
+{
+    text-align:center;
+    color:darkblue;
+}
+.DateRangePickerInput
+{
+    background-color: lightblue;
+    border-color:blueviolet;
+}
+.description_ticker
+{
+    background-color: lightblue;
+    max-width: 75%;
+    height: 300px;
+}
+.content
+{
+    height: 60%;
+}
