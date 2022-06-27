@@ -1,7 +1,3 @@
-from cmath import inf
-from multiprocessing.dummy import Value
-import py_compile
-from pydoc import classname
 import dash
 from dash import dcc
 from dash import html
@@ -12,11 +8,8 @@ import yfinance as yf
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
-from pyparsing import line
-from matplotlib.pyplot import figure
 
 app = dash.Dash(__name__)
-
 server = app.server
 
 app.layout = html.Div([
