@@ -3,76 +3,94 @@ from dash import dcc
 from dash import html
 from dash.dependencies import Input, Output, State
 from dash.exceptions import PreventUpdate
-from datetime import date, datetime, timedelta
+from datetime import date
 import yfinance as yf
 import pandas as pd
 import plotly.graph_objs as go
 import plotly.express as px
-
+ 
 app = dash.Dash(__name__)
-
 server = app.server
 
 app.layout = html.Div([
     html.Div([
-        html.H1("Welcome to the Stock Dash App!", className="start"),
-        html.H3(["Stock code input:"],className='start'),
-        html.Div([dcc.Input(id='my-id',value='', type='text'),
-        html.Button('Submit', id='subm', n_clicks=0)]),
-        html.Div([dcc.DatePickerRange(
+        html.P("Stock Visualizer and Prediction", className="start"),
+        html.P('Input stock code:',className="heading"),
+        html.Div(children=[
+            dcc.Input(id='input-on-submit',type='text',value="Type Here", className="input"),
+            html.Button('Submit', id='submit-val', n_clicks=0, className="Button"),
+        ],className="code"),
+        html.Div(children=[            
+             dcc.DatePickerRange(
                 id='date-picker-range',
                 initial_visible_month=date.today(),
-                start_date_placeholder_text='Start date',
+                start_date_placeholder_text='Start Date',
                 end_date=date.today(),
                 display_format='DD/MM/YYYY',
-            )],className="plotly-datepicker"),
-
+            )
+        ],className="date_picker"),
         html.Div([
-        html.Button(['Stock price'],id='stock-but',className='button'),
-        html.Button(['Indicators'],id='indi-but',className='button')]),
-   # html.Div([
-        #dcc.Input(value='Days of forecast', type='text'),
-        #html.Button(['Forecast'],className='button'),]),],className="nav"),
-    html.Div([
-        html.Div(children=[],id="head",className="header"),
+            html.Button(['Stock price'], id="button-1", className='Button'),
+            html.Button(['Indicators'], id="button-2", className='Button'),
+            #dcc.Input(id='input-val', value='Number of Days', type='text',className="input"),
+            #html.Button(['Forecast'], id="button-3", n_clicks='0' , className='Button'),
+        ],className="forecast"),
+    ],
+    className="nav"),
+    html.Div(
+    [
+        html.Div([
+            html.Img(id="img",src=" "),
+            html.Div(children=[],id="head",className="header"),
+        ]),
         html.Div(children=[], id="description", className="decription_ticker"),
-        html.Img(src=" ",id="img"),
         dcc.Graph(id="graphs-content"),
         dcc.Graph(id="main-content"),
+        #dcc.Graph (id="forecast-content"),
+    ],
+    className="content")
+],className="container")
 
-className="content")],className="container")
 @app.callback([
+    Output("img","src"),
     Output("head", "children"),
     Output("description","children"),
-    Output("img","src")
     ],
-    [Input('subm', 'n_clicks')],
-    [State('my-id', 'value')]
+    [Input('submit-val', 'n_clicks')],
+    [State('input-on-submit', 'value')]
 )
-def update_data(n_clicks,valu):
+def update_output(n_clicks,val):
     global store
-    store=valu
+    store=val
     if n_clicks is None:
         raise PreventUpdate
     else:
-        ticker = yf.Ticker(valu)
+        ticker = yf.Ticker(val)
         inf = ticker.info
         df = pd.DataFrame().from_dict(inf, orient="index").T
-        lit=[df["longName"]]
-        lit.append(df["longBusinessSummary"])
-        lit.append(df["logo_url"][0])
-        return lit
+        li=[df["logo_url"][0]]
+        li.append(df["longName"][0])
+        li.append(df["longBusinessSummary"][0])
+        return li
+
+@app.callback(Output("img", 'style'), [Input('submit-val','n_clicks')])
+def hide_image(n_clicks):
+    if n_clicks is not None:
+        return {'display':'block'}
+    else:
+        return {'display':'none'}
+
 @app.callback(
-    Output("graphs-content", "figure"),
+    Output("graphs-content", "figure"),  
     [Input('date-picker-range','start_date')],
     [Input('date-picker-range','end_date')],
-    [Input('stock-but','n_clicks')],
+    [Input('button-1','n_clicks')],
 )
-def modify(st,en,n_clicks):
+def update_output(start_date,end_date,n_clicks):
     if n_clicks is None:
         raise PreventUpdate
     else:
-        df = yf.download(store,st,en)
+        df = yf.download(store, start_date, end_date)
         df.reset_index(inplace=True)
         fig = get_stock_price_fig(df)
         return fig
@@ -93,35 +111,25 @@ def get_stock_price_fig(df):
     xaxis_title="Date",
     yaxis_title="Price")
     return fig
-@app.callback(Output('graphs-content', 'style'), [Input('stock-but','n_clicks')])
+
+@app.callback(Output('graphs-content', 'style'), [Input('button-1','n_clicks')])
 def hide_graph(n_clicks):
     if n_clicks is not None:
         return {'display':'block'}
     else:
         return {'display':'none'}
-@app.callback(Output('main-content', 'style'), [Input('indi-but','n_clicks')])
-def hide_grap(n_clicks):
-    if n_clicks is not None:
-        return {'display':'block'}
-    else:
-        return {'display':'none'}
-@app.callback(Output('img', 'style'), [Input('subm','n_clicks')])
-def hide_img(n_clicks):
-    if n_clicks is not None:
-        return {'display':'block'}
-    else:
-        return {'display':'none'}
+
 @app.callback(
     Output("main-content","figure"),
     [Input('date-picker-range','start_date')],
     [Input('date-picker-range','end_date')],
-    [Input('indi-but','n_clicks')],
+    [Input('button-2','n_clicks')],
 )
-def modif(st,en,n_clicks):
+def modif(start_date,end_date,n_clicks):
     if n_clicks is None:
         raise PreventUpdate
     else:
-        df = yf.download(store,st,en)
+        df = yf.download(store,start_date,end_date)
         df.reset_index(inplace=True)
         fig = get_more(df)
         return fig
@@ -133,5 +141,13 @@ def get_more(df):
     title="Exponential Moving Average vs Date")
     fig.update_traces(mode='lines')
     return fig
+
+@app.callback(Output('main-content', 'style'), [Input('button-2','n_clicks')])
+def hide_graph(n_clicks):
+    if n_clicks is not None:
+        return {'display':'block'}
+    else:
+        return {'display':'none'}
+
 if __name__ == '__main__':
     app.run_server(debug=True)
